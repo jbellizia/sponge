@@ -45,6 +45,10 @@ app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 
+# Dummy hash for timing attack protection
+DUMMY_HASH = generate_password_hash("dummy_password")
+
+
 mail = Mail(app)
 s = URLSafeTimedSerializer(app.secret_key)
 
