@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template, redirect, url_for, flash, abort, jsonify, Markup, session, send_from_directory
+from flask import Flask, request, render_template, redirect, url_for, flash, abort, jsonify, session, send_from_directory
+from markupsafe import Markup
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
