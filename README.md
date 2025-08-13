@@ -1,5 +1,4 @@
-# sponge
-A social media website made for me and my friends
+
 # Sponge
 
 Sponge is a private, whitelisted social server where users can post, comment, follow, and interact with each other. Built with Python + Flask + Jinja2 and designed for small friend groups, it includes authentication, email verification, and an SQLite database.
