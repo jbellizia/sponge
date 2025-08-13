@@ -1,0 +1,30 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Environment variables / secrets
+.env
+
+# SQLite database
+*.db
+users.db
+*.sqlite3
+
+#uploads
+static/uploads/
+static/profile_pictures/
+
+# Flask specific
+instance/
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
