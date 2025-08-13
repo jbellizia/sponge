@@ -18,7 +18,6 @@ from enum import Enum
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
-limiter = Limiter(get_remote_address, app=app)
 
 
 #load env file
@@ -28,6 +27,8 @@ load_dotenv()
 #set up flask app config
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
+
+limiter = Limiter(get_remote_address, app=app)
 
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
