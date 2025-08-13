@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="/check_email">Register</a>
+        <a href="/login">Log In</a>
+    </nav>
+    <h2>Register</h2>
+    <p>So you think you're cool enough to soak it in with the real ones, huh?</p>
+
+    {% with messages = get_flashed_messages(category_filter=["register"]) %}
+        {% if messages %}
+            <ul class=flashes>
+            {% for message in messages %}
+                <li>{{ message|safe }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <form method="POST">
+
+        <label for="email">Email:</label>
+        <input id="email" name="email" value="{{ email }}"  required><br>
+
+        <label for="username">Username:</label>
+        <input id="username" name="username"  required><br>
+
+        <label for="password">Password:</label>
+        <input name="password" type="password" required><br>
+
+        <label for="code">Verification code:</label>
+        <input name="code" required><br>
+
+        <input type="submit" value="Register">
+    </form>
+</body>
+</html>

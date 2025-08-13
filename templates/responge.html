@@ -1,0 +1,44 @@
+<!-- templates/upload.html -->
+{% extends "base.html" %}
+
+{% block title %}Responge{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Responge of {{get_username_by_id(post.user_id)|style_username|safe}}'s post</h2>
+</div>
+<form method="post" enctype="multipart/form-data">
+    {{ render_flashes() }}
+    <label for="image">Attach an image (filesize under 2MB):</label>
+    <input type="file" id="image" name="image"><br>
+
+    <label for="caption">Caption:</label>
+    <textarea name="caption" rows="4" cols="50"></textarea><br><br>
+
+    <div class="post responge-original-post">
+        <a href = "{{ url_for('profile', username=get_username_by_id(post.user_id) ) }}" class="post-header">
+            <img src="{{ url_for('static', filename=( 'profile_pictures/' + get_user_by_id(post.user_id).profile_pic_filename ) if get_user_by_id(post.user_id).profile_pic_filename else 'default_profile_pictures/default.png') }}"
+            alt="{{ get_username_by_id(post.user_id) }}'s profile picture" class="profile-pic">
+
+            <h4>{{ get_username_by_id(post.user_id)|style_username|safe }}</h4>
+        </a>
+
+        {% if post.image_filename %}
+            <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Profile Picture" width="300">
+        {% endif %}
+
+        {% if post.caption %}
+            <p>{{ post.caption}}</p>
+        {% endif %}
+        <small>{{post.timestamp}}</small>
+
+
+
+    </div>
+
+
+
+    <input type="submit" value="Post">
+</form>
+{% endblock %}
+

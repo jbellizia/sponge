@@ -1,0 +1,43 @@
+<!-- templates/followers.html -->
+{% extends "base.html" %}
+
+{% block title %}{{username}}'s Following{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{{username|style_username|safe}}'s Following</h2>
+</div>
+{{ render_flashes() }}
+
+{% if users %}
+    <ul class="users-list">
+    {% for user in users %}
+        <li class="user">
+            <a href="{{ url_for('profile', username=user[1]) }}">
+                <img src="{{ url_for('static', filename='profile_pictures/' + (user[2] or 'default_profile_pictures/default.png')) }}"
+                     alt="{{ user[1] }}'s profile picture" class="profile-pic">
+                <h4>{{ user[1]|style_username|safe }}</h4>
+            </a>
+            {% if user[0] != current_user.id %}
+                <form method="POST" action="{{ url_for('toggle_follow') }}" class="follow-form">
+                    <input type="hidden" name="followed_id" value="{{ user[0] }}">
+                    <button type="submit" class="follow-btn {% if is_following(current_user.id, user[0]) %}unfollow{% else %}follow{% endif %}">
+                        {% if is_following(current_user.id, user[0]) %}
+                            Unfollow
+                        {% else %}
+                            Follow
+                        {% endif %}
+                    </button>
+                </form>
+            {% endif %}
+        </li>
+        
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Following no one. A sponge onto themselves</p>
+{% endif %}
+
+{% endblock %}
+
+

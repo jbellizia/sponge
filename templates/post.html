@@ -1,0 +1,136 @@
+<!-- templates/post.html -->
+{% extends "base.html" %}
+
+{% block title %}{{post_user.username}}'s Post on {{post.timestamp}}{% endblock %}
+
+{% block content %}
+{% if post %}
+    <div class="page-header">
+        <h2>{{ post_user.username|style_username|safe }}'s Post on {{post.timestamp}}</h2>
+    </div>
+    <div class="post view-post">
+        {{ render_flashes() }}
+        <div class="post-banner">
+            <a href = "{{ url_for('profile', username=post_user.username ) }}" class="post-header">
+                <img src="{{ url_for('static', filename='profile_pictures/' + (post_user.profile_pic_filename if post_user.profile_pic_filename else 'default_profile_pictures/default.png')) }}"
+                    alt="{{ post_user.username }}'s profile picture" class="profile-pic">
+                <h4>{{ post_user.username|style_username|safe }}</h4>
+            </a>
+            {% if current_user.is_authenticated and post_user.id == current_user.id %}
+                <a href="{{ url_for('edit_post', post_id=post.id) }}"  class="edit-link">
+                    <p class="edit">Edit Post</p>
+                </a>
+            {% endif %}
+        </div>
+
+        {% if post.image_filename %}
+            <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Profile Picture" width="300">
+        {% endif %}
+
+        
+
+        {% if post.caption %}
+            <p>{{ post.caption | link_mentions}}</p>
+        {% endif %}
+
+        {% if repost and repost_user %}
+            {%if repost.post_id != -1%}
+                <div class="post repost view-repost">
+                    <div class="post-banner">
+                        <a href = "{{ url_for('profile', username=repost_user.username ) }}" class="post-header">
+                            <img src="{{ url_for('static', filename='profile_pictures/' + (repost_user.profile_pic_filename if repost_user.profile_pic_filename else 'default_profile_pictures/default.png')) }}"
+                            alt="{{ repost_user.username }}'s profile picture" class="profile-pic">
+                            <h4>{{ repost_user.username|style_username|safe }}</h4>
+                        </a>
+                    </div>
+                    <a href="{{ url_for('view_post', id=repost.id) }}"  class="post-link">
+                        {% if repost.image_filename %}
+                            <img src="{{ url_for('static', filename='uploads/' + repost.image_filename) }}" alt="Profile Picture" width="300">
+                        {% endif %}
+                        {% if repost.caption %}
+                            <p>{{ repost.caption}}</p>
+                        {% endif %}
+
+
+                        <small>{{repost.timestamp}}</small>
+                    </a>
+                </div>
+            {%else%}
+                <p class="post repost">This post was deleted. Sad day to be soaking it in.</p>
+            {%endif%}
+        {%endif%}
+
+        <small>{{post.timestamp}}</small>
+
+        <div class="post-actions">
+            <div class="comment-button-wrapper">
+                <a class='comment-button' href = "#comments">
+                    <span class="comment-img" title="comment"> </span>
+                </a>
+                <span class="comment-count" title="Comment count">{{ comment_count }} </span>
+            </div>
+            <div class="like-wrapper">
+                <button class="like-button {% if liked %}liked{% endif %}" data-post-id="{{ post.id }}">
+                    <span class="like-img" title="like"></span>
+                </button>
+                <a href="/post/{{ post.id }}/likes" class="like-count-link">
+                    <span class="like-count" title="View likes">{{ likes }} </span>
+                </a>
+            </div>
+            <div class="responge-wrapper">
+                <a class='responge' href = "{{ url_for('responge', post_id=post.id) }}">
+                    <span class="responge-img" title="responge"> </span>
+                </a>
+                <a href="/post/{{ post.id }}/responges" class="like-count-link">
+                    <span class="responge-count" title="View responges">{{ repost_count }} </span>
+                </a>
+            </div>
+
+        </div>
+
+
+
+
+        
+    </div>
+
+    <div class="comments" >
+        {% if comments%}
+            <h2>Comments</h2>
+            {% for comment_id, user_id, username, profile_pic_filename, comment_text, timestamp in comments %}
+                <div class="post" {% if comment_id %} id="comment-{{comment_id}}"{%endif%}>
+                    <div class="comment-banner">
+                        <a href = "{{ url_for('profile', username=get_username_by_id(user_id) ) }}" class="post-header">
+                            <img src="{{ url_for('static', filename='profile_pictures/' + (profile_pic_filename if profile_pic_filename else 'default_profile_pictures/default.png')) }}"
+                            alt="{{ username }}'s profile picture" class="profile-pic">
+                            <h4>{{username|style_username|safe}}</h4>
+                        </a>
+                        {% if current_user.is_authenticated and user_id == current_user.id %}
+                            <form method="POST" action="{{ url_for('delete_comment', comment_id=comment_id) }}" onsubmit="return confirm('Are you sure you want to delete this comment?');" class="delete-comment">
+                                <div class="button-wrapper-delete-comment">
+                                    <input type="hidden" name="delete" value="1">
+                                    <button type="submit" class="delete-comment">Delete Comment</button>
+                                </div>
+                            </form>
+                        {% endif %}
+
+                    </div>
+                    
+                    <p>{{ comment_text|link_mentions }}</p>
+                    <small>{{timestamp}}</small>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="comments-form" id="comments">
+        <form method="POST" >
+            <label for="comment_text">Comment:</label><br>
+            <textarea name="comment_text" rows="4" cols="50"></textarea>
+
+            <input type="submit" value="Post">
+        </form>
+    </div>
+{%endif%}
+
+{% endblock %}

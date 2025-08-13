@@ -1,0 +1,27 @@
+<!-- templates/upload.html -->
+{% extends "base.html" %}
+
+{% block title %}Upload{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Upload a post</h2>
+</div>
+<form method="post" enctype="multipart/form-data">
+    {{ render_flashes() }}
+
+    <label for="upload-image" class="upload-label">Attach an image</label>
+    <input type="file" id="upload-image" name="upload-image" class="hidden-input"><br>
+
+
+    <span id="file-name"></span>
+    <div class="preview-container">
+        <img id="preview-img" src="" alt="Preview" class="preview-img upload-img" style="display: none;">
+        <button type="button" id="remove-image" class="remove" style="display: none;">Remove</button>
+    </div>
+
+    <label for="caption">Caption:</label>
+    <textarea name="caption" rows="4" cols="50"></textarea><br><br>
+    <input type="submit" value="Post">
+</form>
+{% endblock %}

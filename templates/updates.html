@@ -1,0 +1,31 @@
+<!-- templates/updates.html -->
+{% extends "base.html" %}
+
+{% block title %}Updates{% endblock %}
+
+{% block content %}
+<div class="page-header updates">
+    <h2>What's New?</h2>
+    <h3>The changelog</h3>
+</div>
+{{ render_flashes() }}
+
+{% if updates %}
+    <ul class="updates-list">
+        {% for id, header, body, timestamp in updates %}
+            <li class="update">
+                <div class="update-content">
+                    <h4>{{ header}}</h4>
+                    
+                    <p>{{ body }}</p>
+                    <span class="timestamp">{{ timestamp }}</span>
+                </div>
+                
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No updates. Website fell from heaven (github) </p>
+{% endif %}
+{% endblock %}
+

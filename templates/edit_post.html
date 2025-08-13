@@ -1,0 +1,31 @@
+<!-- templates/edit_post.html -->
+{% extends "base.html" %}
+
+{% block title %}Edit Post{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Edit Post</h2>
+</div>
+<form method="post" class="edit-form">
+    {{ render_flashes() }}
+
+    {% if post['image_filename'] %}
+        <div class="img-wrapper-edit">
+            <img src="{{ url_for('static', filename='uploads/' + post['image_filename']) }}" alt="Post Image" class="edit-image">
+        </div>
+    {% endif %}
+    <label for="caption">Edit caption:</label><br>
+    <textarea name="caption" rows="4" cols="50">{{ post['caption'] }}</textarea><br><br>
+    <div class="button-wrapper">
+        <button type="submit" class="edit-post">Save</button>
+    </div>
+</form>
+
+<form method="post" onsubmit="return confirm('Are you sure you want to delete this post?');" class="edit-form">
+     <div class="button-wrapper">
+        <input type="hidden" name="delete" value="1">
+        <button type="submit" class="edit-post delete-post">Delete Post</button>
+    </div>
+</form>
+{% endblock %}

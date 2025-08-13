@@ -1,0 +1,194 @@
+{% macro render_flashes() %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message|safe }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+{% endmacro %}
+
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Sponge{% endblock %}</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+
+</head>
+<body>
+    <!-- Nav bar shared across pages -->
+
+    <nav>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('myprofile') }}">Profile</a>
+        <a href="{{ url_for('upload') }}">Post</a>
+        <a href="{{ url_for('show_notifications') }}">Notifications</a>
+        <a href="{{ url_for('users') }}">Users</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+        <a href="{{ url_for('updates') }}">Changelog</a>
+        <a href="#" onclick="confirmLogout(event)">Log Out</a>
+        <form id="logout-form" method="POST" action="{{ url_for('logout') }}" style="display: none;"></form>
+
+    </nav>
+
+    
+    <!-- Content block for child templates -->
+    {% block content %}{% endblock %}
+</body>
+<script>
+    function confirmLogout(event) {
+        event.preventDefault();
+        if (confirm('Are you sure you want to log out?')) {
+            document.getElementById('logout-form').submit();
+        }
+    }
+    function confirmRemoveProfilePic() {
+        if (confirm("Are you sure you want to remove your profile picture?")) {
+            const form = document.getElementById('settings-form');
+
+            // Clear file input
+            const fileInput = document.getElementById('profile-pic');
+            fileInput.value = "";  // This removes the selected file
+
+            // Hide preview image
+            const previewImg = document.getElementById('preview-img');
+            previewImg.style.display = 'none';
+            previewImg.src = '#';
+
+            // Clear file name display (if you're showing it)
+            const fileNameSpan = document.getElementById('file-name');
+            fileNameSpan.textContent = "";
+
+
+
+
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'remove_profile_pic';
+            input.value = 'Remove profile picture';
+
+            form.appendChild(input);
+            form.submit();
+        }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.like-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const postId = button.getAttribute('data-post-id');
+
+                fetch(`/toggle_like/${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const countSpan = button.parentElement.querySelector('.like-count');
+                        if (countSpan) {
+                            countSpan.textContent = data.likes;
+                        }
+
+                        button.classList.toggle('liked', data.liked);
+                    }
+                });
+            });
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('profile-pic').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+            if (file) {
+                if (!allowedTypes.includes(file.type)) {
+                    alert("Only JPG, JPEG, PNG, and GIF files are allowed.");
+                    this.value = ''; // Clear file input
+                    document.getElementById('file-name').textContent = '';
+                    document.getElementById('preview-img').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('file-name').textContent = file.name;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewImg = document.getElementById('preview-img');
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('preview-img').style.display = 'none';
+                document.getElementById('file-name').textContent = '';
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const uploadInput = document.getElementById('upload-image');
+        const previewImg = document.getElementById('preview-img');
+        const fileNameDisplay = document.getElementById('file-name');
+        const removeButton = document.getElementById('remove-image');
+
+        uploadInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+            if (file) {
+                if (!allowedTypes.includes(file.type)) {
+                    alert("Only JPG, JPEG, PNG, and GIF files are allowed.");
+                    resetPreview();
+                    return;
+                }
+
+                fileNameDisplay.textContent = file.name;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                    removeButton.style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                resetPreview();
+            }
+        });
+
+        removeButton.addEventListener('click', function () {
+            resetPreview();
+        });
+
+        function resetPreview() {
+            uploadInput.value = '';
+            previewImg.src = '';
+            previewImg.style.display = 'none';
+            fileNameDisplay.textContent = '';
+            removeButton.style.display = 'none';
+        }
+    });
+
+    document.querySelectorAll('.post-content').forEach(post => {
+        post.addEventListener('click', function(e) {
+            if (e.target.closest('.mention')) return;
+            const url = this.dataset.url;
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+
+    
+</script>
+
+
+</html>

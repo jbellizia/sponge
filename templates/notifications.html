@@ -1,0 +1,113 @@
+<!-- templates/notifications.html -->
+{% extends "base.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Notifications</h2>
+</div>
+{{ render_flashes() }}
+
+{% if notifs %}
+    <ul class="notifications-list">
+        {% for n in notifs %}
+            <li class="notification {% if not n.is_read %}unread{% endif %}">
+                <div class="notification-content">
+                    {% if n.from_user_id %}
+                        {% set from_username = get_username_by_id(n.from_user_id)|style_username|safe %}
+                        {% set from_user_profile_pic = get_user_by_id(n.from_user_id).profile_pic_filename %}
+                    {% endif %}
+                    {% if n.type == 'follow'  and from_username %}
+                        <a href="{{ url_for('profile', username=from_username) }}" class ='notification-user'>
+                            <img src="{{ url_for('static', filename='profile_pictures/' + (from_user_profile_pic or 'default_profile_pictures/default.png')) }}"
+                            alt="{{ from_username }}'s profile picture" class="profile-pic">
+                            <h4>{{ from_username }}</h4>
+                        </a>
+                        <p class="notification-message">followed you.</p>
+                    {% elif n.type == 'comment'  and n.post_id and n.comment_id  and from_username %}
+
+                        <a href="{{ url_for('profile', username=from_username) }}" class ='notification-user'>
+                            <img src="{{ url_for('static', filename='profile_pictures/' + (from_user_profile_pic or 'default_profile_pictures/default.png')) }}"
+                            alt="{{ from_username }}'s profile picture" class="profile-pic">
+                            <h4>{{ from_username }}</h4>
+                        </a>
+                        <a href="{{ url_for('view_post', id=n.post_id) }}#comment-{{ n.comment_id }}" class="notification-message-link">
+                            commented on your post.
+                        </a>
+                        
+                    {% elif n.type == 'mention' and n.post_id  and from_username %}
+
+                        <a href="{{ url_for('profile', username=from_username) }}" class ='notification-user'>
+                            <img src="{{ url_for('static', filename='profile_pictures/' + (from_user_profile_pic or 'default_profile_pictures/default.png')) }}"
+                            alt="{{ from_username }}'s profile picture" class="profile-pic">
+                            <h4>{{ from_username }}</h4>
+                        </a>
+                        <a href="{{ url_for('view_post', id=n.post_id) }}"  class="notification-message-link">
+                            mentioned you in a post.
+                        </a>
+                        
+                    {% elif n.type == 'mention_in_comment' and n.post_id and n.comment_id  and from_username%}
+                        <a href="{{ url_for('profile', username=from_username) }}" class ='notification-user'>
+                            <img src="{{ url_for('static', filename='profile_pictures/' + (from_user_profile_pic or 'default_profile_pictures/default.png')) }}"
+                            alt="{{ from_username }}'s profile picture" class="profile-pic">
+                            <h4>{{ from_username }}</h4>
+                        </a>    
+                        
+                        <a href="{{ url_for('view_post', id=n.post_id) }}#comment-{{ n.comment_id }}" class="notification-message-link">
+                            mentioned you in a comment.
+                        </a>
+
+                    {% elif n.type == 'reply'  and n.post_id and n.comment_id  and from_username%}
+                        <a href="{{ url_for('profile', username=from_username) }}" class ='notification-user'>
+                            <img src="{{ url_for('static', filename='profile_pictures/' + (from_user_profile_pic or 'default_profile_pictures/default.png')) }}"
+                            alt="{{ from_username }}'s profile picture" class="profile-pic">
+                            <h4>{{ from_username }} </h4>
+                        </a>
+                        <a href="{{ url_for('view_post', id=n.post_id) }}#comment-{{ n.comment_id }}" class="notification-message-link">
+                            
+                            replied to your comment.
+                        </a>
+
+                    {% elif n.type == 'like_milestone' and n.post_id %}
+                        <a href="{{ url_for('view_post', id=n.post_id) }}" class="notification-message-link">
+                            
+                            Your post reached a like milestone!
+                        </a>
+
+                    {% elif n.type == 'responge'  and n.post_id  and from_username%}
+                        <a href="{{ url_for('profile', username=from_username) }}" class ='notification-user'>
+                            <img src="{{ url_for('static', filename='profile_pictures/' + (from_user_profile_pic or 'default_profile_pictures/default.png')) }}"
+                            alt="{{ from_username }}'s profile picture" class="profile-pic">
+                            <h4>{{ from_username }} </h4>
+                        </a>
+                        <a href="{{ url_for('view_post', id=n.post_id) }}" class="notification-message-link">
+                            responged your post.
+                        </a>
+
+                    {% else %}
+                        <span>Unknown notification type.</span>
+                    {% endif %}
+                </div>
+
+                <span class="timestamp">{{ n.timestamp }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No notifications in the last 10 days.</p>
+{% endif %}
+
+<script>
+    window.addEventListener('load', () => {
+
+        fetch('/mark_notifications_read', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+    });
+</script>
+{% endblock %}
+

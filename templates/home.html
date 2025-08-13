@@ -1,0 +1,124 @@
+<!-- templates/home.html -->
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Recent Posts</h2>
+</div>
+{{ render_flashes() }}
+
+{% if posts %}
+    {% for post_id, user_id, username, profile_pic_filename, caption, image_filename, timestamp, repost_id, likes, liked, repost_count, comment_count in posts %}
+    
+    <div class="post" >
+        <div class="post-banner">
+            <a href = "{{ url_for('profile', username=username ) }} " class="post-header">
+                <img src="{{ url_for('static', filename='profile_pictures/' + (profile_pic_filename or 'default_profile_pictures/default.png')) }}"
+                    alt="{{ username }}'s profile picture" class="profile-pic">
+                <h4>{{ username|style_username|safe }}</h4>
+            </a>
+            {% if current_user.is_authenticated and user_id == current_user.id %}
+                <a href="{{ url_for('edit_post', post_id=post_id) }}" class="edit-link">
+                    <p class="edit">Edit Post</p>
+                </a>
+            {% endif %}
+        </div>
+        
+        <div class="post-content" data-url="{{ url_for('view_post', id=post_id) }}">
+            {% if image_filename %}
+                <img src="{{ url_for('static', filename='uploads/' + image_filename) }}" alt="Post Image" width="300">
+            {% endif %}
+
+            
+
+            {% if caption %}
+                <p>{{ caption | link_mentions}}</p>
+            {% endif %}
+
+            {% if repost_id != -1 %}
+                {% set repost = get_post_by_id(repost_id) %}
+
+                {% if repost %}
+                    {% set repost_user = get_user_by_id(repost.user_id) %}
+                    {% if repost_user %}
+                        <div class="post repost">
+                            <div class="post-header">
+                                <img src="{{ url_for('static', filename='profile_pictures/' + (repost_user.profile_pic_filename if repost_user.profile_pic_filename else 'default_profile_pictures/default.png')) }}"
+                                alt="{{ repost_user.username }}'s profile picture" class="profile-pic">
+                                <h4>{{ repost_user.username|style_username|safe }}</h4>
+                            </div>
+                            {% if repost.image_filename %}
+                                <img src="{{ url_for('static', filename='uploads/' + repost.image_filename) }}" alt="Profile Picture" width="300">
+                            {% endif %}
+                            {% if repost.caption %}
+                                <p>{{ repost.caption}}</p>
+                            {% endif %}
+                            <small>{{ repost.timestamp }}</small>
+                        </div>
+                    {%endif%}
+                {%else%}
+                    <p class="post repost">This post was deleted. Sad day to be soaking it in.</p>
+                {% endif %}
+            {% endif %}
+
+            <small>Posted on {{ timestamp }}</small>
+            
+        </div>
+        <div class="post-actions">
+            <div class="comment-button-wrapper">
+                <a class='comment-button' href = "{{ url_for('view_post', id=post_id) }}#comments">
+                    <span class="comment-img" title="comment"> </span>
+                </a>
+                <span class="comment-count" title="Comment count">{{ comment_count }} </span>
+
+
+            </div>
+
+            <div class="like-wrapper">
+                <button class="like-button {% if liked %}liked{% endif %}" data-post-id="{{ post_id }}">
+                    <span class="like-img" title="like"></span>
+                </button>
+                <a href="/post/{{ post_id }}/likes" class="like-count-link">
+                    <span class="like-count" title="View likes">{{ likes }}</span>
+                </a>
+            </div>
+            <div class="responge-wrapper">
+                <a class='responge' href = "{{ url_for('responge', post_id=post_id) }}">
+                    <span class="responge-img" title="responge"> </span>
+                </a>
+                <a href="/post/{{ post_id }}/responges" class="like-count-link">
+                            <span class="responge-count" title="View responges">{{ repost_count }} </span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    {% endfor %}
+{% else %}
+    <p>No posts in the past 10 days.</p>
+{% endif %}
+
+
+<div class="pagination">
+    {% if page > 1 %}
+        <a href="{{ url_for('home', page=page-1) }}"> Prev</a>
+    {% endif %}
+    
+    {% for p in range(1, total_pages + 1) %}
+        {% if p == page %}
+            <strong>{{ p }}</strong>
+        {% else %}
+            <a href="{{ url_for('home', page=p) }}">{{ p }}</a>
+        {% endif %}
+    {% endfor %}
+    
+    {% if page < total_pages %}
+        <a href="{{ url_for('home', page=page+1) }}">Next</a>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+
