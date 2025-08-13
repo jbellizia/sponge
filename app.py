@@ -46,7 +46,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 
 # Dummy hash for timing attack protection
-DUMMY_HASH = generate_password_hash("dummy_password")
+DUMMY_HASH = generate_password_hash("dummy_password", method="pbkdf2:sha256")
 
 
 mail = Mail(app)
